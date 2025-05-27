@@ -2,7 +2,7 @@ let fuse;
 let data = [];
 
 async function initsearchbox() {
-  data = await fetchfresh(972); // Adjust form ID
+  data = creatures;
   fuse = new Fuse(data, { keys: ['name', 'meta.description'] });
 
   document.getElementById('searchbox').addEventListener('input', e => {
