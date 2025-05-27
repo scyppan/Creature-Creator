@@ -1,0 +1,8 @@
+#searchbox {
+  width: 85%;
+  background-color: rgba(190, 224, 171, 0.2);
+  padding: 8px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
