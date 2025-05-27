@@ -21,9 +21,11 @@ function handlesearchinput(e) {
   getsuggestions(query, e);
 }
 
-
 function getsuggestions(query, e) {
-  const results = fuse.search(query).map(res => res.item);
+  const results = Object.values(creatures).filter(c =>
+    c.meta.creaturename && c.meta.creaturename.toLowerCase().includes(query.toLowerCase())
+  );
+
   showresults(results, e);
 }
 
