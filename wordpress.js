@@ -1,10 +1,13 @@
-const version = 'a25.5.26.001';
-const baseurl = 'https://cdn.jsdelivr.net/gh/scyppan/creature-creator';
+const version = 'a25.5.27.002'
+const baseUrl = 'https://cdn.jsdelivr.net/gh/scyppan/Creature-Creator';
 
 document.addEventListener('DOMContentLoaded', function () {
-  const mainscript = document.createElement('script');
-  mainscript.src = `${baseurl}@${version}/main.js`;
-  mainscript.defer = true;
-  mainscript.onload = () => initapp(baseurl, version);
-  document.head.appendChild(mainscript);
-});
+
+  var mainScript = document.createElement('script')
+  mainScript.src   = baseUrl + '@' + version + '/main.js'
+  mainScript.defer = true
+  mainScript.onload = function() {
+    initapp(baseUrl, version)
+  }
+  document.head.appendChild(mainScript)
+})
