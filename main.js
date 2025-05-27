@@ -38,7 +38,7 @@ function loadAssets(baseUrl, version) {
 
 async function initapp(baseUrl, version) {
     await loadAssets(baseUrl, version);
-    characters = await fetchfresh(48);
+    creatures = await fetchfresh(48);
     document.getElementById('char-count')?.remove();
     initsearchbox();
 }
