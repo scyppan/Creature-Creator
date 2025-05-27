@@ -36,7 +36,7 @@ function createsuggestionbox(e) {
   suggestions.style.top = `${rect.bottom + window.scrollY}px`;
   suggestions.style.left = `${rect.left + window.scrollX}px`;
 
-  document.body.appendChild(suggestions);
+  document.getElementById('searchbox').parentElement.appendChild(suggestions);
   return suggestions;
 }
 
