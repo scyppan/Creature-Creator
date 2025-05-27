@@ -53,18 +53,12 @@ function showresults(results, e) {
 
 function createresultlisting(result) {
     const li = document.createElement('li');
-    li.dataset.id = result.id;
+    li.dataset.id = result.meta.creaturename;
     li.classList.add("suggestion");
-    li.textContent = result.name;
+    li.textContent = result.meta.creaturename;
     li.addEventListener('click', () => {
         document.getElementById('suggestions').remove();
-        loadcreature(result.id);
+        loadcreature(result.meta.creaturename);
     });
     return li;
-}
-
-// Placeholder: define your creature loading function as needed
-function loadcreature(id) {
-    console.log(`Load creature details for id: ${id}`);
-    // Implement creature-detail loading functionality here
 }
