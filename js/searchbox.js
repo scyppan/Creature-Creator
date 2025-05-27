@@ -6,8 +6,9 @@ async function initsearchbox() {
         threshold: 0.3
     });
 
-    document.getElementById('searchbox').addEventListener('input', handlesearchinput);
-
+    let searchbox=document.getElementById('searchbox')
+    searchbox.addEventListener('input', handlesearchinput);
+    searchbox.classList.remove('hidden');
 }
 
 function handlesearchinput(e) {

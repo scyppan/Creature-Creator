@@ -7,5 +7,4 @@ function loadcreature(name) {
     let name = document.createElement('div');
     name.textContent = creature.meta.creaturename;
     container.appendChild(name);
-
 }
