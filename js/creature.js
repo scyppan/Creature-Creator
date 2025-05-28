@@ -15,6 +15,11 @@ function loadcreature(creaturename) {
     container.appendChild(rendersocialrules());
     container.appendChild(renderabilities());
     container.appendChild(renderattacks());
+
+    window.parent.postMessage(
+        { eventtype: 'charassigned', name: currentcreature.meta.creaturename },
+        '*'
+    );
 }
 
 function randbetween(sizelo, sizehi) {
