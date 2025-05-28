@@ -199,6 +199,21 @@ function renderattacks() {
 
       const rolled = randbetween(lo, hi);
       result.textContent = ` → ${rolled}`;
+
+      // ── Construct broadcast message ──
+      const cname = currentcreature.meta.creaturename;
+      const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
+      let msg = `${an} ${cname} attempts a ${name} with a set value of ${rolled}.`;
+
+      if (iwtype && dotwtype) {
+        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
+      } else if (iwtype) {
+        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
+      } else if (dotwtype) {
+        msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
+      }
+
+      window.parent.postMessage(msg, "*");
     });
 
     attackline.appendChild(button);
@@ -208,3 +223,4 @@ function renderattacks() {
 
   return el;
 }
+
