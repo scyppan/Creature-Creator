@@ -110,3 +110,96 @@ function rendersocialrules() {
   el.textContent = text;
   return el;
 }
+
+function renderattacks() {
+  const attacks = getattacks();
+  if (!attacks.length) return document.createElement('div');
+
+  const el = document.createElement('div');
+  el.textContent = 'Attacks';
+
+  attacks.forEach((name, i) => {
+    const attackline = document.createElement('div');
+    const button = document.createElement('button');
+    const result = document.createElement('span');
+
+    const desc = currentcreature.meta.attackdescription?.[i] || '';
+
+    // Immediate Wounds (optional)
+    const iwtype = currentcreature.meta.immediatewoundtype?.[i];
+    const iwamt  = currentcreature.meta.immediatewoundamtnum?.[i];
+    const iwcat  = currentcreature.meta.immediatewoundamtcat?.[i];
+
+    let iwstring = '';
+    if (iwtype) {
+      iwstring = `\n\nImmediate Wounds:\n${iwamt} ${iwcat} (${iwtype})`;
+    }
+
+    // Damage over Time (optional)
+    const dotwtype = currentcreature.meta.dotwoundtype?.[i];
+    const dotwamt  = currentcreature.meta.dotwoundamtnum?.[i];
+    const dotwcat  = currentcreature.meta.dotwoundamtcat?.[i];
+
+    let dotstring = '';
+    if (dotwtype) {
+      dotstring = `\n\nDamage over Time:\n${dotwamt} ${dotwcat} (${dotwtype})`;
+    }
+
+    button.textContent = name;
+    button.title = `${name}\n${desc}${iwstring}${dotstring}`;
+
+    button.addEventListener('click', () => {
+      const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
+      const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
+
+      if (isNaN(lo) || isNaN(hi)) {
+        result.textContent = ' — Invalid range';
+        return;
+      }
+
+      const rolled = randbetween(lo, hi);
+      result.textContent = ` → ${rolled}`;
+    });
+
+    attackline.appendChild(button);
+    attackline.appendChild(result);
+    el.appendChild(attackline);
+  });
+
+  return el;
+}
+
+function renderabilities() {
+  const abilities = getabilities();
+  if (!abilities.length) return document.createElement('div');
+
+  const el = document.createElement('div');
+  el.textContent = 'Abilities';
+
+  abilities.forEach((name, i) => {
+    const abline = document.createElement('div');
+    const button = document.createElement('button');
+    const result = document.createElement('span');
+
+    const desc = currentcreature.meta.abilitydescription?.[i] || '';
+    button.textContent = name;
+    button.title = `${name}\n${desc}`;
+
+    button.addEventListener('click', () => {
+      const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
+      const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
+      if (isNaN(lo) || isNaN(hi)) {
+        result.textContent = ' — Invalid range';
+        return;
+      }
+      const rolled = randbetween(lo, hi);
+      result.textContent = ` → ${rolled}`;
+    });
+
+    abline.appendChild(button);
+    abline.appendChild(result);
+    el.appendChild(abline);
+  });
+
+  return el;
+}
