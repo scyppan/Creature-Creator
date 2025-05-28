@@ -210,71 +210,70 @@ function renderabilities() {
   return el;
 }
 
-
 function renderattacks() {
-    const attacks = currentcreature.meta.creatureattack || [];
-    const el = document.createElement('div');
-    el.classList.add('creature-section', 'attacks');
-    el.textContent = 'Attacks';
+  const attacks = currentcreature.meta.creatureattack || [];
+  const el = document.createElement('div');
+  el.classList.add('creature-section', 'attacks');
+  el.textContent = 'Attacks';
 
-    attacks.forEach((name, i) => {
-        const wrapper = document.createElement('div');
-        const btn = document.createElement('button');
-        const res = document.createElement('span');
+  attacks.forEach((name, i) => {
+    const wrapper = document.createElement('div');
+    const btn     = document.createElement('button');
+    const res     = document.createElement('span');
 
-        // Gather data for tooltip
-        const desc = currentcreature.meta.attackdescription?.[i] || '';
-        const iwtype = currentcreature.meta.immediatewoundtype?.[i];
-        const iwamt = currentcreature.meta.immediatewoundamtnum?.[i];
-        const iwcat = currentcreature.meta.immediatewoundamtcat?.[i];
-        const dotwtype = currentcreature.meta.dotwoundtype?.[i];
-        const dotwamt = currentcreature.meta.dotwoundamtnum?.[i];
-        const dotwcat = currentcreature.meta.dotwoundamtcat?.[i];
+    const desc     = currentcreature.meta.attackdescription?.[i]      || '';
+    const iwtype   = currentcreature.meta.immediatewoundtype?.[i];
+    const iwamt    = currentcreature.meta.immediatewoundamtnum?.[i];
+    const iwcat    = currentcreature.meta.immediatewoundamtcat?.[i];
+    const dotwtype = currentcreature.meta.dotwoundtype?.[i];
+    const dotwamt  = currentcreature.meta.dotwoundamtnum?.[i];
+    const dotwcat  = currentcreature.meta.dotwoundamtcat?.[i];
 
-        const parts = [name];
-        if (desc) parts.push(desc);
-        if (iwtype) parts.push(`Immediate Wounds: ${iwamt} ${iwcat} (${iwtype})`);
-        if (dotwtype) parts.push(`Damage over Time: ${dotwamt} ${dotwcat} (${dotwtype})`);
-        const base = parts.join('\n');
+    // build the base tooltip (without rating)
+    const parts = [name];
+    if (desc)     parts.push(desc);
+    if (iwtype)   parts.push(`Immediate Wounds: ${iwamt} ${iwcat} (${iwtype})`);
+    if (dotwtype) parts.push(`Damage over Time: ${dotwamt} ${dotwcat} (${dotwtype})`);
+    const base = parts.join('\n');
 
-        btn.textContent = name;
-        btn.title = base;
+    // 1) pick a static rating now
+    const rating    = pickRating();
+    const capRating = capitalize(rating);
 
-        btn.addEventListener('click', () => {
-            const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
-            const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
-            if (isNaN(lo) || isNaN(hi)) {
-                res.textContent = ' — Invalid range';
-                return;
-            }
+    // 2) build tooltip with rating at the top
+    btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
 
-            const rating = pickRating();
-            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-            const rolled = randbetween(adjLo, adjHi);
-            res.textContent = ` → ${rolled}`;
+    btn.textContent = name;
+    btn.addEventListener('click', () => {
+      const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
+      const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
+      if (isNaN(lo) || isNaN(hi)) {
+        res.textContent = ' — Invalid range';
+        return;
+      }
 
-            const capRating = capitalize(rating);
-            // prepend rating into tooltip title
-            btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
+      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+      const rolled = randbetween(adjLo, adjHi);
+      res.textContent = ` → ${rolled}`;
 
-            // send message as before...
-            const cname = currentcreature.meta.creaturename;
-            const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-            let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
-            if (iwtype && dotwtype) {
-                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
-            } else if (iwtype) {
-                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
-            } else if (dotwtype) {
-                msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
-            }
-            window.parent.postMessage(msg, '*');
-        });
-
-        wrapper.appendChild(btn);
-        wrapper.appendChild(res);
-        el.appendChild(wrapper);
+      // send the same postMessage as before
+      const cname = currentcreature.meta.creaturename;
+      const an    = /^[aeiou]/i.test(cname) ? 'an' : 'a';
+      let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
+      if (iwtype && dotwtype) {
+        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
+      } else if (iwtype) {
+        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
+      } else if (dotwtype) {
+        msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
+      }
+      window.parent.postMessage(msg, '*');
     });
 
-    return el;
+    wrapper.appendChild(btn);
+    wrapper.appendChild(res);
+    el.appendChild(wrapper);
+  });
+
+  return el;
 }
