@@ -1,6 +1,6 @@
 let creatures;
 
-const cssfiles = ['searchbox.css', 'creatures.css'];
+const cssfiles = ['searchbox.css', 'creature.css'];
 const jsfiles  = ['api.js', 'searchbox.js', 'creature.js'];
 
 function loadAssets(baseUrl, version) {
