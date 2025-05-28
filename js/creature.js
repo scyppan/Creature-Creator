@@ -116,199 +116,8 @@ function rendersocialrules() {
     return el;
 }
 
-// Helper to capitalize a rating string
 function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function renderabilities() {
-  const abilities = currentcreature.meta.creatureability;
-  if (!abilities?.length) return document.createElement('div');
-
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'abilities');
-  el.textContent = 'Abilities';
-
-  abilities.forEach((name, i) => {
-    const abline      = document.createElement('div');
-    const button      = document.createElement('button');
-    const result      = document.createElement('span');
-    const desc        = currentcreature.meta.abilitydescription?.[i] || '';
-    const baseTooltip = [name, desc].filter(Boolean).join('\n');
-
-    button.textContent = name;
-    button.title       = baseTooltip;
-
-    button.addEventListener('click', () => {
-      // 1) parse base bounds
-      const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
-      const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
-      if (isNaN(lo) || isNaN(hi)) {
-        result.textContent = ' — Invalid range';
-        return;
-      }
-
-      // 2) pick rating & adjust
-      const rating      = pickRating();
-      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-
-      // 3) roll
-      const rolled = randbetween(adjLo, adjHi);
-      result.textContent = ` → ${rolled}`;
-
-      // 4) update tooltip with rating
-      const capRating = capitalize(rating);
-      button.title = baseTooltip + `\nRating: ${capRating}`;
-
-      // 5) post message
-      window.parent.postMessage(
-        `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
-        '*'
-      );
-    });
-
-    abline.appendChild(button);
-    abline.appendChild(result);
-    el.appendChild(abline);
-  });
-
-  return el;
-}
-
-function renderattacks() {
-  const attacks = currentcreature.meta.creatureattack;
-  if (!attacks?.length) return document.createElement('div');
-
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'attacks');
-  el.textContent = 'Attacks';
-
-  attacks.forEach((name, i) => {
-    const attackline  = document.createElement('div');
-    const button      = document.createElement('button');
-    const result      = document.createElement('span');
-    const desc        = currentcreature.meta.attackdescription?.[i] || '';
-    const iwtype      = currentcreature.meta.immediatewoundtype?.[i];
-    const iwamt       = currentcreature.meta.immediatewoundamtnum?.[i];
-    const iwcat       = currentcreature.meta.immediatewoundamtcat?.[i];
-    const dotwtype    = currentcreature.meta.dotwoundtype?.[i];
-    const dotwamt     = currentcreature.meta.dotwoundamtnum?.[i];
-    const dotwcat     = currentcreature.meta.dotwoundamtcat?.[i];
-
-    // build initial tooltip
-    const lines = [name];
-    if (desc)     lines.push(desc);
-    if (iwtype)   lines.push('', 'Immediate Wounds:', `${iwamt} ${iwcat} (${iwtype})`);
-    if (dotwtype) lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
-    const baseTooltip = lines.join('\n');
-
-    button.textContent = name;
-    button.title       = baseTooltip;
-
-    button.addEventListener('click', () => {
-      // 1) parse base bounds
-      const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
-      const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
-      if (isNaN(lo) || isNaN(hi)) {
-        result.textContent = ' — Invalid range';
-        return;
-      }
-
-      // 2) pick rating & adjust
-      const rating      = pickRating();
-      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-
-      // 3) roll
-      const rolled = randbetween(adjLo, adjHi);
-      result.textContent = ` → ${rolled}`;
-
-      // 4) update tooltip with rating
-      const capRating = capitalize(rating);
-      button.title = baseTooltip + `\nRating: ${capRating}`;
-
-      // 5) build & post message
-      const cname = currentcreature.meta.creaturename;
-      const an    = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-      let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
-      if (iwtype && dotwtype) {
-        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
-      } else if (iwtype) {
-        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
-      } else if (dotwtype) {
-        msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
-      }
-      window.parent.postMessage(msg, '*');
-    });
-
-    attackline.appendChild(button);
-    attackline.appendChild(result);
-    el.appendChild(attackline);
-  });
-
-  return el;
-}
-
-function renderattacks() {
-    const attacks = currentcreature.meta.creatureattack;
-    if (!attacks?.length) return document.createElement('div');
-
-    const el = document.createElement('div');
-    el.classList.add('creature-section', 'attacks');
-    el.textContent = 'Attacks';
-
-    attacks.forEach((name, i) => {
-        const attackline = document.createElement('div');
-        const button = document.createElement('button');
-        const result = document.createElement('span');
-
-        // build initial tooltip
-        const desc = currentcreature.meta.attackdescription?.[i] || '';
-        const iwtype = currentcreature.meta.immediatewoundtype?.[i];
-        const iwamt = currentcreature.meta.immediatewoundamtnum?.[i];
-        const iwcat = currentcreature.meta.immediatewoundamtcat?.[i];
-        const dotwtype = currentcreature.meta.dotwoundtype?.[i];
-        const dotwamt = currentcreature.meta.dotwoundamtnum?.[i];
-        const dotwcat = currentcreature.meta.dotwoundamtcat?.[i];
-
-        const lines = [name];
-        if (desc) lines.push(desc);
-        if (iwtype) lines.push('', 'Immediate Wounds:', `${iwamt} ${iwcat} (${iwtype})`);
-        if (dotwtype) lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
-
-        const baseTooltip = lines.join('\n');
-        button.textContent = name;
-        button.title = baseTooltip;
-
-        button.addEventListener('click', () => {
-            // …compute lo, hi, rolled as before…
-
-            const rating = pickRating();
-            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-            const rolled = randbetween(adjLo, adjHi);
-            result.textContent = ` → ${rolled}`;
-
-            // update tooltip only:
-            button.title = baseTooltip + `\nRating: ${capitalize(rating)}`;
-            // construct and send message...
-            const cname = currentcreature.meta.creaturename;
-            const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-            let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
-            if (iwtype && dotwtype) {
-                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
-            } else if (iwtype) {
-                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
-            } else if (dotwtype) {
-                msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
-            }
-            window.parent.postMessage(msg, "*");
-        });
-
-        attackline.appendChild(button);
-        attackline.appendChild(result);
-        el.appendChild(attackline);
-    });
-
-    return el;
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function adjustRange(lo, hi, category) {
@@ -351,4 +160,119 @@ function pickRating() {
     if (pct > 90) return 'exceptional';
     if (pct > 75) return 'skilled';
     return 'typical';
+}
+
+function renderabilities() {
+    const abilities = currentcreature.meta.creatureability || [];
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'abilities');
+    el.textContent = 'Abilities';
+
+    abilities.forEach((name, i) => {
+        const wrapper = document.createElement('div');
+        const btn = document.createElement('button');
+        const res = document.createElement('span');
+        const desc = currentcreature.meta.abilitydescription?.[i] || '';
+        const base = [name, desc].filter(Boolean).join('\n');
+
+        btn.textContent = name;
+        btn.title = base;
+
+        btn.addEventListener('click', () => {
+            const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
+            const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
+            if (isNaN(lo) || isNaN(hi)) {
+                res.textContent = ' — Invalid range';
+                return;
+            }
+
+            const rating = pickRating();
+            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const rolled = randbetween(adjLo, adjHi);
+            res.textContent = ` → ${rolled}`;
+
+            const capRating = capitalize(rating);
+            btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
+
+            window.parent.postMessage(
+                `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
+                '*'
+            );
+        });
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(res);
+        el.appendChild(wrapper);
+    });
+
+    return el;
+}
+
+
+function renderattacks() {
+    const attacks = currentcreature.meta.creatureattack || [];
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'attacks');
+    el.textContent = 'Attacks';
+
+    attacks.forEach((name, i) => {
+        const wrapper = document.createElement('div');
+        const btn = document.createElement('button');
+        const res = document.createElement('span');
+
+        // Gather data for tooltip
+        const desc = currentcreature.meta.attackdescription?.[i] || '';
+        const iwtype = currentcreature.meta.immediatewoundtype?.[i];
+        const iwamt = currentcreature.meta.immediatewoundamtnum?.[i];
+        const iwcat = currentcreature.meta.immediatewoundamtcat?.[i];
+        const dotwtype = currentcreature.meta.dotwoundtype?.[i];
+        const dotwamt = currentcreature.meta.dotwoundamtnum?.[i];
+        const dotwcat = currentcreature.meta.dotwoundamtcat?.[i];
+
+        const parts = [name];
+        if (desc) parts.push(desc);
+        if (iwtype) parts.push(`Immediate Wounds: ${iwamt} ${iwcat} (${iwtype})`);
+        if (dotwtype) parts.push(`Damage over Time: ${dotwamt} ${dotwcat} (${dotwtype})`);
+        const base = parts.join('\n');
+
+        btn.textContent = name;
+        btn.title = base;
+
+        btn.addEventListener('click', () => {
+            const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
+            const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
+            if (isNaN(lo) || isNaN(hi)) {
+                res.textContent = ' — Invalid range';
+                return;
+            }
+
+            const rating = pickRating();
+            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const rolled = randbetween(adjLo, adjHi);
+            res.textContent = ` → ${rolled}`;
+
+            const capRating = capitalize(rating);
+            // prepend rating into tooltip title
+            btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
+
+            // send message as before...
+            const cname = currentcreature.meta.creaturename;
+            const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
+            let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
+            if (iwtype && dotwtype) {
+                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
+            } else if (iwtype) {
+                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
+            } else if (dotwtype) {
+                msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
+            }
+            window.parent.postMessage(msg, '*');
+        });
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(res);
+        el.appendChild(wrapper);
+    });
+
+    return el;
 }
