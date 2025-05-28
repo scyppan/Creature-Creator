@@ -1,4 +1,6 @@
 let creatures;
+let abilities;
+let attacks;
 
 const cssfiles = ['searchbox.css', 'creature.css'];
 const jsfiles  = ['api.js', 'searchbox.js', 'creature.js'];
@@ -39,6 +41,8 @@ function loadAssets(baseUrl, version) {
 async function initapp(baseUrl, version) {
     await loadAssets(baseUrl, version);
     creatures = await fetchfresh(48);
+    abilities = await fetchfresh(52);
+    attacks = await fetchfresh(51);
     document.getElementById('char-count')?.remove();
     initsearchbox();
 }
