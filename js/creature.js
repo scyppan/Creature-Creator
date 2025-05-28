@@ -163,49 +163,51 @@ function pickRating() {
 }
 
 function renderabilities() {
-    const abilities = currentcreature.meta.creatureability || [];
-    const el = document.createElement('div');
-    el.classList.add('creature-section', 'abilities');
-    el.textContent = 'Abilities';
+  const abilities = currentcreature.meta.creatureability || [];
+  const el = document.createElement('div');
+  el.classList.add('creature-section', 'abilities');
+  el.textContent = 'Abilities';
 
-    abilities.forEach((name, i) => {
-        const wrapper = document.createElement('div');
-        const btn = document.createElement('button');
-        const res = document.createElement('span');
-        const desc = currentcreature.meta.abilitydescription?.[i] || '';
-        const base = [name, desc].filter(Boolean).join('\n');
+  abilities.forEach((name, i) => {
+    const wrapper   = document.createElement('div');
+    const btn       = document.createElement('button');
+    const res       = document.createElement('span');
+    const desc      = currentcreature.meta.abilitydescription?.[i] || '';
+    const baseLines = [name, desc].filter(Boolean).join('\n');
 
-        btn.textContent = name;
-        btn.title = base;
+    // 1) pick a static rating now
+    const rating    = pickRating();
+    const capRating = capitalize(rating);
 
-        btn.addEventListener('click', () => {
-            const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
-            const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
-            if (isNaN(lo) || isNaN(hi)) {
-                res.textContent = ' — Invalid range';
-                return;
-            }
+    // 2) build tooltip with rating at the top
+    btn.title = `${name} (${capRating})` + (baseLines ? '\n' + baseLines : '');
 
-            const rating = pickRating();
-            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-            const rolled = randbetween(adjLo, adjHi);
-            res.textContent = ` → ${rolled}`;
+    btn.textContent = name;
+    btn.addEventListener('click', () => {
+      // 3) use the same rating for every roll of this button
+      const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
+      const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
+      if (isNaN(lo) || isNaN(hi)) {
+        res.textContent = ' — Invalid range';
+        return;
+      }
 
-            const capRating = capitalize(rating);
-            btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
+      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+      const rolled = randbetween(adjLo, adjHi);
+      res.textContent = ` → ${rolled}`;
 
-            window.parent.postMessage(
-                `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
-                '*'
-            );
-        });
-
-        wrapper.appendChild(btn);
-        wrapper.appendChild(res);
-        el.appendChild(wrapper);
+      window.parent.postMessage(
+        `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
+        '*'
+      );
     });
 
-    return el;
+    wrapper.appendChild(btn);
+    wrapper.appendChild(res);
+    el.appendChild(wrapper);
+  });
+
+  return el;
 }
 
 
