@@ -118,138 +118,114 @@ function rendersocialrules() {
 
 // helper to capitalize
 function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function renderabilities() {
-  const abilities = currentcreature.meta.creatureability;
-  if (!abilities?.length) return document.createElement('div');
+    const abilities = currentcreature.meta.creatureability;
+    if (!abilities?.length) return document.createElement('div');
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'abilities');
-  el.textContent = 'Abilities';
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'abilities');
+    el.textContent = 'Abilities';
 
-  abilities.forEach((name, i) => {
-    const abline = document.createElement('div');
-    const button = document.createElement('button');
-    const result = document.createElement('span');
+    abilities.forEach((name, i) => {
+        const abline = document.createElement('div');
+        const button = document.createElement('button');
+        const result = document.createElement('span');
 
-    const desc = currentcreature.meta.abilitydescription?.[i] || '';
-    const baseTooltip = [name, desc].filter(Boolean).join('\n');
-    button.textContent = name;
-    button.title = baseTooltip;
+        const desc = currentcreature.meta.abilitydescription?.[i] || '';
+        const baseTooltip = [name, desc].filter(Boolean).join('\n');
+        button.textContent = name;
+        button.title = baseTooltip;
 
-    button.addEventListener('click', () => {
-      const lo     = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
-      const hi     = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
-      if (isNaN(lo) || isNaN(hi)) {
-        result.textContent = ' — Invalid range';
-        return;
-      }
+        button.addEventListener('click', () => {
+            // …compute lo, hi, rolled as before…
 
-      // pick & apply rating
-      const rating = pickRating();
-      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-      const rolled = randbetween(adjLo, adjHi);
+            const rating = pickRating();
+            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const rolled = randbetween(adjLo, adjHi);
+            result.textContent = ` → ${rolled}`;
 
-      // update button label with rating
-      const capRating = capitalize(rating);
-      button.textContent = `${name} (${capRating})`;
+            // update tooltip only:
+            button.title = baseTooltip + `\nRating: ${capitalize(rating)}`;
 
-      result.textContent = ` → ${rolled}`;
+            window.parent.postMessage(
+                `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${rating}] (range ${adjLo}–${adjHi}).`,
+                "*"
+            );
+        });
 
-      // update tooltip too if you like
-      button.title = baseTooltip + `\nRating: ${capRating}`;
-
-      window.parent.postMessage(
-        `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
-        "*"
-      );
+        abline.appendChild(button);
+        abline.appendChild(result);
+        el.appendChild(abline);
     });
 
-    abline.appendChild(button);
-    abline.appendChild(result);
-    el.appendChild(abline);
-  });
-
-  return el;
+    return el;
 }
 
 function renderattacks() {
-  const attacks = currentcreature.meta.creatureattack;
-  if (!attacks?.length) return document.createElement('div');
+    const attacks = currentcreature.meta.creatureattack;
+    if (!attacks?.length) return document.createElement('div');
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'attacks');
-  el.textContent = 'Attacks';
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'attacks');
+    el.textContent = 'Attacks';
 
-  attacks.forEach((name, i) => {
-    const attackline = document.createElement('div');
-    const button     = document.createElement('button');
-    const result     = document.createElement('span');
+    attacks.forEach((name, i) => {
+        const attackline = document.createElement('div');
+        const button = document.createElement('button');
+        const result = document.createElement('span');
 
-    // build initial tooltip
-    const desc     = currentcreature.meta.attackdescription?.[i] || '';
-    const iwtype   = currentcreature.meta.immediatewoundtype?.[i];
-    const iwamt    = currentcreature.meta.immediatewoundamtnum?.[i];
-    const iwcat    = currentcreature.meta.immediatewoundamtcat?.[i];
-    const dotwtype = currentcreature.meta.dotwoundtype?.[i];
-    const dotwamt  = currentcreature.meta.dotwoundamtnum?.[i];
-    const dotwcat  = currentcreature.meta.dotwoundamtcat?.[i];
+        // build initial tooltip
+        const desc = currentcreature.meta.attackdescription?.[i] || '';
+        const iwtype = currentcreature.meta.immediatewoundtype?.[i];
+        const iwamt = currentcreature.meta.immediatewoundamtnum?.[i];
+        const iwcat = currentcreature.meta.immediatewoundamtcat?.[i];
+        const dotwtype = currentcreature.meta.dotwoundtype?.[i];
+        const dotwamt = currentcreature.meta.dotwoundamtnum?.[i];
+        const dotwcat = currentcreature.meta.dotwoundamtcat?.[i];
 
-    const lines = [name];
-    if (desc)     lines.push(desc);
-    if (iwtype)   lines.push('', 'Immediate Wounds:', `${iwamt} ${iwcat} (${iwtype})`);
-    if (dotwtype) lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
+        const lines = [name];
+        if (desc) lines.push(desc);
+        if (iwtype) lines.push('', 'Immediate Wounds:', `${iwamt} ${iwcat} (${iwtype})`);
+        if (dotwtype) lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
 
-    const baseTooltip = lines.join('\n');
-    button.textContent = name;
-    button.title       = baseTooltip;
+        const baseTooltip = lines.join('\n');
+        button.textContent = name;
+        button.title = baseTooltip;
 
-    button.addEventListener('click', () => {
-      const lo     = parseInt(currentcreature.meta.creatureattacklo?.[i]);
-      const hi     = parseInt(currentcreature.meta.creatureattackhi?.[i]);
-      if (isNaN(lo) || isNaN(hi)) {
-        result.textContent = ' — Invalid range';
-        return;
-      }
+        button.addEventListener('click', () => {
+            // …compute lo, hi, rolled as before…
 
-      // pick & apply rating
-      const rating = pickRating();
-      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
-      const rolled = randbetween(adjLo, adjHi);
+            const rating = pickRating();
+            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const rolled = randbetween(adjLo, adjHi);
+            result.textContent = ` → ${rolled}`;
 
-      // update button label with rating
-      const capRating = capitalize(rating);
-      button.textContent = `${name} (${capRating})`;
+            // update tooltip only:
+            button.title = baseTooltip + `\nRating: ${capitalize(rating)}`;
+            // construct and send message...
+            const cname = currentcreature.meta.creaturename;
+            const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
+            let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
+            if (iwtype && dotwtype) {
+                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
+            } else if (iwtype) {
+                msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
+            } else if (dotwtype) {
+                msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
+            }
+            window.parent.postMessage(msg, "*");
+        });
 
-      result.textContent = ` → ${rolled}`;
-
-      // update tooltip
-      button.title = baseTooltip + `\nRating: ${capRating}`;
-
-      // construct and send message...
-      const cname = currentcreature.meta.creaturename;
-      const an    = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-      let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
-      if (iwtype && dotwtype) {
-        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
-      } else if (iwtype) {
-        msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage.`;
-      } else if (dotwtype) {
-        msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
-      }
-      window.parent.postMessage(msg, "*");
+        attackline.appendChild(button);
+        attackline.appendChild(result);
+        el.appendChild(attackline);
     });
 
-    attackline.appendChild(button);
-    attackline.appendChild(result);
-    el.appendChild(attackline);
-  });
-
-  return el;
+    return el;
 }
-
 
 function adjustRange(lo, hi, category) {
     lo = parseInt(lo);
