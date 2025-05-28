@@ -5,3 +5,7 @@
 .creature-detail {
   white-space: pre-line;
 }
+
+.creature-section {
+  margin-top: 13px;
+}

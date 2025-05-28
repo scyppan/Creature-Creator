@@ -13,19 +13,22 @@ function loadcreature(creaturename) {
   container.appendChild(renderdescription());
   container.appendChild(renderintelligenceandmovement());
   container.appendChild(rendersocialrules());
+  container.appendChild(renderabilities());
+  container.appendChild(renderattacks());
 }
 
 function randbetween(sizelo, sizehi) {
-    const lo = parseInt(sizelo);
-    const hi = parseInt(sizehi);
+  const lo = parseInt(sizelo);
+  const hi = parseInt(sizehi);
 
-    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
 }
 
 function renderdemographics() {
   const { creaturename, creaturetype, sizelo, sizehi } = currentcreature.meta;
 
   const el = document.createElement('div');
+  el.classList.add('creature-section', 'demographics');
   el.textContent = `${creaturename} (${creaturetype} | Size: ${randbetween(sizelo, sizehi)})`;
   return el;
 }
@@ -42,19 +45,21 @@ function renderwoundstats() {
   }
 
   const el = document.createElement('div');
+  el.classList.add('creature-section', 'woundstats');
   el.textContent = text;
   return el;
 }
 
 function renderdescription() {
   const el = document.createElement('div');
-  el.textContent = '\n' + currentcreature.meta.description || '[No description]';
+  el.classList.add('creature-section', 'description');
+  el.textContent = currentcreature.meta.description || '[No description]';
   return el;
 }
 
 function renderintelligenceandmovement() {
   const m = currentcreature.meta;
-  let text = '\n';
+  let text = '';
 
   if (m.beastintello && m.beastintelhi) {
     const val = randbetween(m.beastintello, m.beastintelhi);
@@ -69,8 +74,6 @@ function renderintelligenceandmovement() {
     text += ` | Human Social Skills: ${val}`;
   }
 
-  text += '\n';
-
   const ground = (m.groundlo && m.groundhi)
     ? randbetween(m.groundlo, m.groundhi)
     : "Can't move";
@@ -83,39 +86,81 @@ function renderintelligenceandmovement() {
     ? randbetween(m.airlo, m.airhi)
     : "Will fall";
 
-  text += `Movement: Ground: ${ground} | Water: ${water} | Air: ${air}`;
+  text += `\nMovement: Ground: ${ground} | Water: ${water} | Air: ${air}`;
 
   const el = document.createElement('div');
+  el.classList.add('creature-section', 'intelmove');
   el.textContent = text;
   return el;
 }
 
 function rendersocialrules() {
   const m = currentcreature.meta;
-  let text = '\nSocial Rules\n';
+  let text = 'Social Rules\n';
 
   const lured = m.lured && m.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
   const tamed = m.tamed && m.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
   const bond  = m.bond  && m.bond  !== 'No' ? 'Can bond'     : 'Cannot bond';
 
-  text += `${lured} | ${tamed} | ${bond}\n`;
+  text += `${lured} | ${tamed} | ${bond}`;
 
   if (m.independence)
-    text += `Independence: ${m.independence}\n`;
+    text += `\nIndependence: ${m.independence}`;
 
   if (m.addtlrules)
-    text += `Additional Rules: ${m.addtlrules}`;
+    text += `\nAdditional Rules: ${m.addtlrules}`;
 
   const el = document.createElement('div');
+  el.classList.add('creature-section', 'socialrules');
   el.textContent = text;
   return el;
 }
 
-function renderattacks() {
-  const attacks = getattacks();
-  if (!attacks.length) return document.createElement('div');
+function renderabilities() {
+  const abilities = currentcreature.meta.creatureability;
+  if (!abilities?.length) return document.createElement('div');
 
   const el = document.createElement('div');
+  el.classList.add('creature-section', 'abilities');
+  el.textContent = 'Abilities';
+
+  abilities.forEach((name, i) => {
+    const abline = document.createElement('div');
+    const button = document.createElement('button');
+    const result = document.createElement('span');
+
+    const desc = currentcreature.meta.abilitydescription?.[i] || '';
+
+    const tooltip = [name, desc].filter(Boolean).join('\n');
+
+    button.textContent = name;
+    button.title = tooltip;
+
+    button.addEventListener('click', () => {
+      const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
+      const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
+      if (isNaN(lo) || isNaN(hi)) {
+        result.textContent = ' — Invalid range';
+        return;
+      }
+      const rolled = randbetween(lo, hi);
+      result.textContent = ` → ${rolled}`;
+    });
+
+    abline.appendChild(button);
+    abline.appendChild(result);
+    el.appendChild(abline);
+  });
+
+  return el;
+}
+
+function renderattacks() {
+  const attacks = currentcreature.meta.creatureattack;
+  if (!attacks?.length) return document.createElement('div');
+
+  const el = document.createElement('div');
+  el.classList.add('creature-section', 'attacks');
   el.textContent = 'Attacks';
 
   attacks.forEach((name, i) => {
@@ -123,30 +168,25 @@ function renderattacks() {
     const button = document.createElement('button');
     const result = document.createElement('span');
 
-    const desc = currentcreature.meta.attackdescription?.[i] || '';
-
-    // Immediate Wounds (optional)
-    const iwtype = currentcreature.meta.immediatewoundtype?.[i];
-    const iwamt  = currentcreature.meta.immediatewoundamtnum?.[i];
-    const iwcat  = currentcreature.meta.immediatewoundamtcat?.[i];
-
-    let iwstring = '';
-    if (iwtype) {
-      iwstring = `\n\nImmediate Wounds:\n${iwamt} ${iwcat} (${iwtype})`;
-    }
-
-    // Damage over Time (optional)
+    const desc     = currentcreature.meta.attackdescription?.[i] || '';
+    const iwtype   = currentcreature.meta.immediatewoundtype?.[i];
+    const iwamt    = currentcreature.meta.immediatewoundamtnum?.[i];
+    const iwcat    = currentcreature.meta.immediatewoundamtcat?.[i];
     const dotwtype = currentcreature.meta.dotwoundtype?.[i];
     const dotwamt  = currentcreature.meta.dotwoundamtnum?.[i];
     const dotwcat  = currentcreature.meta.dotwoundamtcat?.[i];
 
-    let dotstring = '';
+    const lines = [name];
+    if (desc) lines.push(desc);
+    if (iwtype) {
+      lines.push('', 'Immediate Wounds:', `${iwamt} ${iwcat} (${iwtype})`);
+    }
     if (dotwtype) {
-      dotstring = `\n\nDamage over Time:\n${dotwamt} ${dotwcat} (${dotwtype})`;
+      lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
     }
 
     button.textContent = name;
-    button.title = `${name}\n${desc}${iwstring}${dotstring}`;
+    button.title = lines.join('\n');
 
     button.addEventListener('click', () => {
       const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
@@ -164,41 +204,6 @@ function renderattacks() {
     attackline.appendChild(button);
     attackline.appendChild(result);
     el.appendChild(attackline);
-  });
-
-  return el;
-}
-
-function renderabilities() {
-  const abilities = getabilities();
-  if (!abilities.length) return document.createElement('div');
-
-  const el = document.createElement('div');
-  el.textContent = 'Abilities';
-
-  abilities.forEach((name, i) => {
-    const abline = document.createElement('div');
-    const button = document.createElement('button');
-    const result = document.createElement('span');
-
-    const desc = currentcreature.meta.abilitydescription?.[i] || '';
-    button.textContent = name;
-    button.title = `${name}\n${desc}`;
-
-    button.addEventListener('click', () => {
-      const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
-      const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
-      if (isNaN(lo) || isNaN(hi)) {
-        result.textContent = ' — Invalid range';
-        return;
-      }
-      const rolled = randbetween(lo, hi);
-      result.textContent = ` → ${rolled}`;
-    });
-
-    abline.appendChild(button);
-    abline.appendChild(result);
-    el.appendChild(abline);
   });
 
   return el;
