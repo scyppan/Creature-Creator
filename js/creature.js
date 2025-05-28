@@ -48,13 +48,13 @@ function renderwoundstats() {
 
 function renderdescription() {
   const el = document.createElement('div');
-  el.textContent = currentcreature.meta.description || '[No description]';
+  el.textContent = '\n' + currentcreature.meta.description || '[No description]';
   return el;
 }
 
 function renderintelligenceandmovement() {
   const m = currentcreature.meta;
-  let text = '';
+  let text = '\n';
 
   if (m.beastintello && m.beastintelhi) {
     const val = randbetween(m.beastintello, m.beastintelhi);
@@ -92,7 +92,7 @@ function renderintelligenceandmovement() {
 
 function rendersocialrules() {
   const m = currentcreature.meta;
-  let text = 'Social Rules\n';
+  let text = '\nSocial Rules\n';
 
   const lured = m.lured && m.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
   const tamed = m.tamed && m.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
