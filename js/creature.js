@@ -1,119 +1,119 @@
 let currentcreature;
 
 function loadcreature(creaturename) {
-  currentcreature = Object.values(creatures).find(
-    c => c.meta?.creaturename === creaturename
-  );
+    currentcreature = Object.values(creatures).find(
+        c => c.meta?.creaturename === creaturename
+    );
 
-  const container = document.getElementById("creaturecontainer");
-  container.innerHTML = ''; // clear old content
+    const container = document.getElementById("creaturecontainer");
+    container.innerHTML = ''; // clear old content
 
-  container.appendChild(renderdemographics());
-  container.appendChild(renderwoundstats());
-  container.appendChild(renderdescription());
-  container.appendChild(renderintelligenceandmovement());
-  container.appendChild(rendersocialrules());
-  container.appendChild(renderabilities());
-  container.appendChild(renderattacks());
+    container.appendChild(renderdemographics());
+    container.appendChild(renderwoundstats());
+    container.appendChild(renderdescription());
+    container.appendChild(renderintelligenceandmovement());
+    container.appendChild(rendersocialrules());
+    container.appendChild(renderabilities());
+    container.appendChild(renderattacks());
 }
 
 function randbetween(sizelo, sizehi) {
-  const lo = parseInt(sizelo);
-  const hi = parseInt(sizehi);
+    const lo = parseInt(sizelo);
+    const hi = parseInt(sizehi);
 
-  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
 }
 
 function renderdemographics() {
-  const { creaturename, creaturetype, sizelo, sizehi } = currentcreature.meta;
+    const { creaturename, creaturetype, sizelo, sizehi } = currentcreature.meta;
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'demographics');
-  el.textContent = `${creaturename} (${creaturetype} | Size: ${randbetween(sizelo, sizehi)})`;
-  return el;
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'demographics');
+    el.textContent = `${creaturename} (${creaturetype} | Size: ${randbetween(sizelo, sizehi)})`;
+    return el;
 }
 
 function renderwoundstats() {
-  const { woundcaplo, woundcaphi, magicalresistlo, magicalresisthi } = currentcreature.meta;
+    const { woundcaplo, woundcaphi, magicalresistlo, magicalresisthi } = currentcreature.meta;
 
-  const cap = randbetween(woundcaplo, woundcaphi);
-  let text = `Heavy Wound Cap: ${cap}`;
+    const cap = randbetween(woundcaplo, woundcaphi);
+    let text = `Heavy Wound Cap: ${cap}`;
 
-  if (magicalresistlo && magicalresisthi) {
-    const res = randbetween(magicalresistlo, magicalresisthi);
-    text += ` | Res. ${res}`;
-  }
+    if (magicalresistlo && magicalresisthi) {
+        const res = randbetween(magicalresistlo, magicalresisthi);
+        text += ` | Res. ${res}`;
+    }
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'woundstats');
-  el.textContent = text;
-  return el;
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'woundstats');
+    el.textContent = text;
+    return el;
 }
 
 function renderdescription() {
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'description');
-  el.textContent = currentcreature.meta.description || '[No description]';
-  return el;
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'description');
+    el.textContent = currentcreature.meta.description || '[No description]';
+    return el;
 }
 
 function renderintelligenceandmovement() {
-  const m = currentcreature.meta;
-  let text = '';
+    const m = currentcreature.meta;
+    let text = '';
 
-  if (m.beastintello && m.beastintelhi) {
-    const val = randbetween(m.beastintello, m.beastintelhi);
-    text += `Beastial Intel: ${val}`;
-  } else if (m.humanintello && m.humanintelhi) {
-    const val = randbetween(m.humanintello, m.humanintelhi);
-    text += `Human Intel: ${val}`;
-  }
+    if (m.beastintello && m.beastintelhi) {
+        const val = randbetween(m.beastintello, m.beastintelhi);
+        text += `Beastial Intel: ${val}`;
+    } else if (m.humanintello && m.humanintelhi) {
+        const val = randbetween(m.humanintello, m.humanintelhi);
+        text += `Human Intel: ${val}`;
+    }
 
-  if (m.sociallo && m.socialhi) {
-    const val = randbetween(m.sociallo, m.socialhi);
-    text += ` | Human Social Skills: ${val}`;
-  }
+    if (m.sociallo && m.socialhi) {
+        const val = randbetween(m.sociallo, m.socialhi);
+        text += ` | Human Social Skills: ${val}`;
+    }
 
-  const ground = (m.groundlo && m.groundhi)
-    ? randbetween(m.groundlo, m.groundhi)
-    : "Can't move";
+    const ground = (m.groundlo && m.groundhi)
+        ? randbetween(m.groundlo, m.groundhi)
+        : "Can't move";
 
-  const water = (m.waterlo && m.waterhi)
-    ? randbetween(m.waterlo, m.waterhi)
-    : "Will drown";
+    const water = (m.waterlo && m.waterhi)
+        ? randbetween(m.waterlo, m.waterhi)
+        : "Will drown";
 
-  const air = (m.airlo && m.airhi)
-    ? randbetween(m.airlo, m.airhi)
-    : "Will fall";
+    const air = (m.airlo && m.airhi)
+        ? randbetween(m.airlo, m.airhi)
+        : "Will fall";
 
-  text += `\nMovement: Ground: ${ground} | Water: ${water} | Air: ${air}`;
+    text += `\nMovement: Ground: ${ground} | Water: ${water} | Air: ${air}`;
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'intelmove');
-  el.textContent = text;
-  return el;
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'intelmove');
+    el.textContent = text;
+    return el;
 }
 
 function rendersocialrules() {
-  const m = currentcreature.meta;
-  let text = 'Social Rules\n';
+    const m = currentcreature.meta;
+    let text = 'Social Rules\n';
 
-  const lured = m.lured && m.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
-  const tamed = m.tamed && m.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
-  const bond  = m.bond  && m.bond  !== 'No' ? 'Can bond'     : 'Cannot bond';
+    const lured = m.lured && m.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
+    const tamed = m.tamed && m.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
+    const bond = m.bond && m.bond !== 'No' ? 'Can bond' : 'Cannot bond';
 
-  text += `${lured} | ${tamed} | ${bond}`;
+    text += `${lured} | ${tamed} | ${bond}`;
 
-  if (m.independence)
-    text += `\nIndependence: ${m.independence}`;
+    if (m.independence)
+        text += `\nIndependence: ${m.independence}`;
 
-  if (m.addtlrules)
-    text += `\nAdditional Rules: ${m.addtlrules}`;
+    if (m.addtlrules)
+        text += `\nAdditional Rules: ${m.addtlrules}`;
 
-  const el = document.createElement('div');
-  el.classList.add('creature-section', 'socialrules');
-  el.textContent = text;
-  return el;
+    const el = document.createElement('div');
+    el.classList.add('creature-section', 'socialrules');
+    el.textContent = text;
+    return el;
 }
 
 function renderabilities() {
@@ -130,11 +130,10 @@ function renderabilities() {
     const result = document.createElement('span');
 
     const desc = currentcreature.meta.abilitydescription?.[i] || '';
-
-    const tooltip = [name, desc].filter(Boolean).join('\n');
-
+    // initial tooltip
+    const baseTooltip = [name, desc].filter(Boolean).join('\n');
     button.textContent = name;
-    button.title = tooltip;
+    button.title = baseTooltip;
 
     button.addEventListener('click', () => {
       const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
@@ -143,8 +142,20 @@ function renderabilities() {
         result.textContent = ' — Invalid range';
         return;
       }
-      const rolled = randbetween(lo, hi);
-      result.textContent = ` → ${rolled}`;
+
+      // pick and apply rating
+      const rating = pickRating();
+      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+      const rolled = randbetween(adjLo, adjHi);
+      result.textContent = ` → ${rolled} (${rating})`;
+
+      // update tooltip to include rating
+      button.title = baseTooltip + `\nRating: ${rating}`;
+
+      window.parent.postMessage(
+        `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${rating}] (range ${adjLo}–${adjHi}).`,
+        "*"
+      );
     });
 
     abline.appendChild(button);
@@ -176,6 +187,7 @@ function renderattacks() {
     const dotwamt  = currentcreature.meta.dotwoundamtnum?.[i];
     const dotwcat  = currentcreature.meta.dotwoundamtcat?.[i];
 
+    // build initial tooltip
     const lines = [name];
     if (desc) lines.push(desc);
     if (iwtype) {
@@ -184,27 +196,32 @@ function renderattacks() {
     if (dotwtype) {
       lines.push('', 'Damage over Time:', `${dotwamt} ${dotwcat} (${dotwtype})`);
     }
+    const baseTooltip = lines.join('\n');
 
     button.textContent = name;
-    button.title = lines.join('\n');
+    button.title = baseTooltip;
 
     button.addEventListener('click', () => {
       const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
       const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
-
       if (isNaN(lo) || isNaN(hi)) {
         result.textContent = ' — Invalid range';
         return;
       }
 
-      const rolled = randbetween(lo, hi);
-      result.textContent = ` → ${rolled}`;
+      // pick and apply rating
+      const rating = pickRating();
+      const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+      const rolled = randbetween(adjLo, adjHi);
+      result.textContent = ` → ${rolled} (${rating})`;
 
-      // ── Construct broadcast message ──
+      // update tooltip
+      button.title = baseTooltip + `\nRating: ${rating}`;
+
+      // build and send your postMessage as before...
       const cname = currentcreature.meta.creaturename;
       const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-      let msg = `${an} ${cname} attempts a ${name} with a set value of ${rolled}.`;
-
+      let msg = `${an} ${cname} attempts a ${name} [${rating}] with a set value of ${rolled}.`;
       if (iwtype && dotwtype) {
         msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
       } else if (iwtype) {
@@ -212,7 +229,6 @@ function renderattacks() {
       } else if (dotwtype) {
         msg += ` If successful, the attack causes ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage over time.`;
       }
-
       window.parent.postMessage(msg, "*");
     });
 
@@ -224,3 +240,44 @@ function renderattacks() {
   return el;
 }
 
+function adjustRange(lo, hi, category) {
+    lo = parseInt(lo);
+    hi = parseInt(hi);
+    if (isNaN(lo) || isNaN(hi) || lo > hi) return [lo, hi];
+
+    let newLo, newHi;
+    switch (category) {
+        case 'inept':
+            newLo = 1;
+            newHi = Math.max(1, Math.floor(hi * 0.5));
+            break;
+        case 'unskilled':
+            newLo = lo;
+            newHi = Math.max(lo, Math.floor(hi * 0.75));
+            break;
+        case 'skilled':
+            newLo = Math.min(hi, Math.ceil(lo * 1.25));
+            newHi = hi;
+            break;
+        case 'exceptional':
+            newLo = Math.ceil(lo * 1.5);
+            newHi = Math.ceil(hi * 1.5);
+            break;
+        default: // 'typical' or any unknown
+            newLo = lo;
+            newHi = hi;
+    }
+
+    // guard newLo/newHi sanity
+    if (newLo > newHi) newLo = newHi;
+    return [newLo, newHi];
+}
+
+function pickRating() {
+    const pct = randbetween(1, 100);
+    if (pct < 10) return 'inept';
+    if (pct < 25) return 'unskilled';
+    if (pct > 90) return 'exceptional';
+    if (pct > 75) return 'skilled';
+    return 'typical';
+}
